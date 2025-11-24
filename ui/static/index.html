@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Applications</title>
+    <style>
+        html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+        }
+        body {
+          font-family: monospace, sans-serif;
+          background-color: #1e1e1e;
+          color: #d4d4d4;
+          font-size: 1.5em;
+          display: flex;
+          flex-direction: column;
+        }
+        h1 {
+          color: #6a9955;
+          text-align: center;
+          border-bottom: 3px solid #101010;
+          padding: 0.5em;
+          font-size: 1em;
+          margin: 0;
+          flex-shrink: 0;
+        }
+        #appList {
+          list-style-type: none;
+          padding: 0;
+          margin: 0;
+          overflow-y: auto;
+          flex-grow: 1;
+        }
+        li {
+          padding: 0.5em;
+          border: 3px solid #094771;
+          cursor: pointer;
+          margin: 0.3em;
+        }
+        li.collected {
+          text-decoration: line-through;
+          color: #888;
+          border-color: #888;
+        }
+        li:focus {
+          background-color: #094771;
+          outline: none;
+        }
+        #input-container {
+          padding: 0.5em;
+          background-color: #1e1e1e;
+          border-top: 3px solid #101010;
+          display: none;
+        }
+        #input-container.visible {
+          display: block;
+        }
+        #itemInput {
+          width: 100%;
+          background-color: #3c3c3c;
+          color: #d4d4d4;
+          border: 3px solid #3c3c3c;
+          padding: 10px;
+          box-sizing: border-box;
+          outline: none;
+          font-size: 1em;
+        }
+        #itemInput:focus {
+          border-color: #6a9955;
+        }
+        .legend {
+          text-align: center;
+          font-size: 0.7em;
+          color: #888;
+          padding: 0.5em 0em;
+          background-color: #101010;
+          border-top: 1px solid #141414;
+          flex-shrink: 0;
+        }
+        .legend kbd {
+          background-color: #3c3c3c;
+          padding: 2px 4px;
+          border-radius: 3px;
+          border: 1px solid #888;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Applications</h1>
+
+<ul id="appList">
+</ul>
+
+<div class="legend">
+    <kbd>j</kbd>/<kbd>k</kbd> nav | <kbd>enter</kbd> open
+</div>
+
+<script>
+    var appList = document.getElementById('appList');
+
+    var applications = [
+        { name: 'Shopping List', path: 'shop-list/' }
+    ];
+
+    function renderList() {
+      appList.innerHTML = '';
+      applications.forEach(function(app) {
+        var li = document.createElement('li');
+        li.textContent = app.name;
+        li.tabIndex = 0;
+        li.app = app;
+        appList.appendChild(li);
+      });
+    }
+
+    function openApplication(app) {
+        if (app && app.path) {
+            window.location.href = app.path;
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      var activeElement = document.activeElement;
+
+      if (activeElement && activeElement.tagName === 'LI' && activeElement.parentElement === appList) {
+        var targetElement = null;
+        switch (event.key) {
+            case 'j':
+                event.preventDefault();
+                targetElement = activeElement.nextElementSibling;
+                if (targetElement) {
+                    targetElement.focus();
+                }
+                break;
+            case 'k':
+                event.preventDefault();
+                targetElement = activeElement.previousElementSibling;
+                if (targetElement) {
+                    targetElement.focus();
+                }
+                break;
+            case 'Enter':
+                event.preventDefault();
+                openApplication(activeElement.app);
+                break;
+        }
+      }
+    });
+
+    appList.addEventListener('click', function(event) {
+        if (event.target.tagName === 'LI' && event.target.app) {
+            openApplication(event.target.app);
+        }
+    });
+
+    // Initial render and focus
+    renderList();
+    var firstApp = appList.querySelector('li');
+    if (firstApp) {
+        firstApp.focus();
+    }
+
+</script>
+
+</body>
+</html>

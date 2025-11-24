@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping List</title>
+    <style>
+        html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+        }
+        body {
+          font-family: monospace, sans-serif;
+          background-color: #1e1e1e;
+          color: #d4d4d4;
+          font-size: 1.5em;
+          display: flex;
+          flex-direction: column;
+        }
+        h1 {
+          color: #6a9955;
+          text-align: center;
+          border-bottom: 3px solid #101010;
+          padding: 0.5em;
+          font-size: 1em;
+          margin: 0;
+          flex-shrink: 0;
+        }
+        #shoppingList {
+          list-style-type: none;
+          padding: 0;
+          margin: 0.5em;
+          overflow-y: auto;
+          flex-grow: 1;
+        }
+        li {
+          padding: 0.5em;
+          border: 3px solid #094771;
+          border-color: #222 #222 #222 #094771;
+          border-width: 3px 3px 3px 5px;
+          cursor: pointer;
+          margin: 0.1em;
+        }
+        li.collected {
+          text-decoration: line-through;
+          color: #888;
+          border-color: #222 #222 #222 #888;
+        }
+        li:focus {
+          background-color: #094771;
+          border-color: #094771;
+          outline: none;
+        }
+        #input-container {
+          padding: 0.5em;
+          background-color: #1e1e1e;
+          border-top: 3px solid #101010;
+          display: none;
+        }
+        #input-container.visible {
+          display: block;
+        }
+        #itemInput {
+          width: 100%;
+          background-color: #3c3c3c;
+          color: #d4d4d4;
+          border: 3px solid #3c3c3c;
+          padding: 10px;
+          box-sizing: border-box;
+          outline: none;
+          font-size: 1em;
+        }
+        #itemInput:focus {
+          border-color: #6a9955;
+        }
+        .legend {
+          text-align: center;
+          font-size: 0.7em;
+          color: #888;
+          padding: 0.5em 0em;
+          background-color: #101010;
+          border-top: 1px solid #141414;
+          flex-shrink: 0;
+        }
+        .legend kbd {
+          background-color: #3c3c3c;
+          padding: 2px 4px;
+          border-radius: 3px;
+          border: 1px solid #888;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Shopping List</h1>
+
+<ul id="shoppingList">
+</ul>
+
+<div id="input-container">
+    <input type="text" id="itemInput" placeholder="New item...">
+</div>
+
+<div class="legend">
+    <kbd>q</kbd> quit | <kbd>n</kbd> new | <kbd>j</kbd>/<kbd>k</kbd> nav | <kbd>b</kbd> complete | <kbd>u</kbd> un-complete | <kbd>h</kbd>/<kbd>l</kbd> view | <kbd>enter</kbd> submit
+</div>
+
+<script>
+    var itemInput = document.getElementById('itemInput');
+    var shoppingList = document.getElementById('shoppingList');
+    var inputContainer = document.getElementById('input-container');
+
+    var items = [];
+    var collectedItems = [];
+    var viewMode = 'not-completed'; // 'not-completed' or 'completed'
+
+    function renderList() {
+      shoppingList.innerHTML = '';
+      var itemsToRender = [];
+      if (viewMode === 'not-completed') {
+        itemsToRender = items;
+      } else { // completed
+        itemsToRender = collectedItems;
+      }
+
+      itemsToRender.forEach(function(item) {
+        var li = document.createElement('li');
+        li.textContent = item.name;
+        li.tabIndex = 0;
+        if (item.collected) {
+          li.classList.add('collected');
+        }
+        li.item = item;
+        shoppingList.appendChild(li);
+      });
+    }
+
+    function showInput() {
+        inputContainer.classList.add('visible');
+        itemInput.focus();
+    }
+
+    function hideInput() {
+        inputContainer.classList.remove('visible');
+    }
+
+    function addItemByName(itemName) {
+        var newItem = { name: itemName, collected: false };
+        items.push(newItem);
+        itemInput.value = '';
+        renderList();
+
+        setTimeout(function() {
+            var listItems = shoppingList.getElementsByTagName('li');
+            for (var i = 0; i < listItems.length; i++) {
+                if (listItems[i].item === newItem) {
+                    //listItems[i].focus();
+                    listItems[i].scrollIntoView(false);
+                    break;
+                }
+            }
+        }, 0);
+    }
+
+    function addItem() {
+      var itemName = itemInput.value.trim();
+      if (itemName !== '') {
+        addItemByName(itemName);
+      }
+    }
+
+    function addItems(itemNames) {
+        for (var i = 0; i < itemNames.length; i++) {
+            addItemByName(itemNames[i]);
+        }
+    }
+
+    function updateLists() {
+        var allCurrentItems = [].concat(items, collectedItems);
+        items = [];
+        collectedItems = [];
+        allCurrentItems.forEach(function(item) {
+            if (item.collected) {
+                collectedItems.push(item);
+            } else {
+                items.push(item);
+            }
+        });
+        renderList();
+    }
+
+    function completeItem(itemToComplete) {
+        if (!itemToComplete || itemToComplete.collected) return;
+        itemToComplete.collected = true;
+        updateLists();
+    }
+
+    function uncompleteItem(itemToUncomplete) {
+        if (!itemToUncomplete || !itemToUncomplete.collected) return;
+        itemToUncomplete.collected = false;
+        updateLists();
+    }
+
+    function quitApp() {
+        window.location.href = '/';
+    }
+
+    function focusFirst() {
+        var selector = 'li:not(.collected)';
+        if (viewMode === 'completed') {
+            selector = 'li.collected';
+        }
+        var firstItem = shoppingList.querySelector(selector);
+        if (firstItem) {
+            firstItem.focus();
+        }
+    }
+
+    itemInput.addEventListener('keydown', function(event) {
+      var key = event.key || event.keyCode;
+      if (key === 'Enter' || key === 13) {
+        event.preventDefault();
+        var itemName = itemInput.value.trim();
+        if (itemName === '') {
+            focusFirst();
+            hideInput();
+        } else {
+            addItem();
+            showInput();
+        }
+      }
+    });
+
+    document.addEventListener('keydown', function(event) {
+      var activeElement = document.activeElement;
+      var key = event.key || event.keyCode;
+
+      if (activeElement !== itemInput) {
+        switch (key) {
+            case 'n': case 78:
+                event.preventDefault();
+                showInput();
+                return;
+            case 'q': case 81:
+                event.preventDefault();
+                quitApp();
+                return;
+            case 'h': case 72:
+                event.preventDefault();
+                viewMode = 'not-completed';
+                renderList();
+                focusFirst();
+                return;
+            case 'l': case 76:
+                event.preventDefault();
+                viewMode = 'completed';
+                renderList();
+                focusFirst();
+                return;
+        }
+      }
+
+      if (activeElement && activeElement.tagName === 'LI' && activeElement.parentElement === shoppingList) {
+        var targetElement = null;
+        switch (key) {
+            case 'j':
+            case 74:
+                event.preventDefault();
+                targetElement = activeElement.nextElementSibling;
+                if (targetElement) {
+                    targetElement.focus();
+                    targetElement.scrollIntoView(false);
+                }
+                break;
+            case 'k':
+            case 75:
+                event.preventDefault();
+                targetElement = activeElement.previousElementSibling;
+                if (targetElement) {
+                    targetElement.focus();
+                    targetElement.scrollIntoView(false);
+                }
+                break;
+            case 'b':
+            case 66:
+                event.preventDefault();
+                var itemToComplete = activeElement.item;
+                if (!itemToComplete || itemToComplete.collected) break;
+
+                var index = items.indexOf(itemToComplete);
+                completeItem(itemToComplete);
+
+                var listItems = shoppingList.getElementsByTagName('li');
+                if (listItems.length > 0) {
+                    var newIndex = Math.max(0, Math.min(index, listItems.length - 1));
+                    listItems[newIndex].focus();
+                }
+                break;
+            case 'u':
+            case 85:
+                event.preventDefault();
+                var itemToUncomplete = activeElement.item;
+                if (!itemToUncomplete || !itemToUncomplete.collected) break;
+
+                var index = collectedItems.indexOf(itemToUncomplete);
+                uncompleteItem(itemToUncomplete);
+
+                var listItems = shoppingList.getElementsByTagName('li');
+                if (listItems.length > 0) {
+                    var newIndex = Math.max(0, Math.min(index, listItems.length - 1));
+                    listItems[newIndex].focus();
+                }
+                break;
+        }
+      }
+    });
+
+    shoppingList.addEventListener('click', function(event) {
+        if (event.target.tagName === 'LI' && event.target.item) {
+            if (event.target.item.collected) {
+                uncompleteItem(event.target.item);
+            } else {
+                completeItem(event.target.item);
+            }
+        }
+    });
+
+    //addItems(["Duonos","Batono","Pieno","Desros","Sviesto","Kiausiniu","Sausainiu","Varskes","Vaisiu","Uogu","Kavos","Arbatos"]);
+    renderList();
+    focusFirst();
+
+
+</script>
+
+</body>
+</html>
