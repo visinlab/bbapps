@@ -1,0 +1,85 @@
+html, body, .app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app {
+  font-family: monospace, sans-serif;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-size: 1.5em;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  color: #6a9955;
+  text-align: center;
+  border-bottom: 3px solid #101010;
+  padding: 0.5em;
+  font-size: 1em;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.7em;
+  color: #888;
+  padding: 0.5em 0em;
+  background-color: #101010;
+  border-top: 1px solid #141414;
+  flex-shrink: 0;
+}
+.footer kbd {
+  background-color: #3c3c3c;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #888;
+}
+
+.content {
+  list-style-type: none;
+  padding: 0;
+  margin: 0.5em;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.content li {
+  padding: 0.5em;
+  border: 3px solid #094771;
+  border-color: #222 #222 #222 #094771;
+  border-width: 3px 3px 3px 5px;
+  cursor: pointer;
+  margin: 0.1em;
+}
+.content li:focus {
+  background-color: #094771;
+  border-color: #094771;
+  outline: none;
+}
+
+.input-container {
+  padding: 0.5em;
+  background-color: #1e1e1e;
+  border-top: 3px solid #101010;
+  display: none;
+}
+.input-container.visible {
+  display: block;
+}
+.input-container input {
+  width: 100%;
+  background-color: #3c3c3c;
+  color: #d4d4d4;
+  border: 3px solid #3c3c3c;
+  padding: 10px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 1em;
+}
+.input-container input:focus {
+  border-color: #6a9955;
+}
