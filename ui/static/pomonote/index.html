@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PomoNote</title>
+    <title>Pomonote</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="../common.css">
 </head>
@@ -11,12 +11,16 @@
 <div id="app" class="app">
     <div class="header">Pomonote</div>
     <ul class="content">
-        <li v-for="task in data.tasks">
-            {{ task.name}}
+        <li v-for="(task, idx) in tasks"
+            :key="idx"
+            ref="taskItems"
+            tabindex="0"
+            @click="onItemClick(idx)">
+            {{ task.name }}
         </li>
     </ul>
-    <div class="input-container" :class="{ visible : data.inputModeOn }">
-        <input ref="inputRef" v-model="data.input" type="text" placeholder="new..." v-on:keyup.enter="onInputEnter()"></input>
+    <div class="input-container" :class="{ visible : inputModeOn }">
+        <input ref="inputRef" v-model="input" type="text" placeholder="new..." v-on:keyup.enter="onInputEnter()"></input>
     </div>
     <div class="footer">
         <kbd>q</kbd> quit
@@ -24,62 +28,8 @@
     </div>
 </div>
 
-<script>
-const { createApp, ref, onMounted, nextTick } = Vue
-
-createApp({
-  setup() {
-    const inputRef = ref(null)
-    const data = ref({
-        inputModeOn: false,
-        tasks: [],
-        input: ''
-    })
-
-    const onInputEnter = () => {
-        let text = data.value.input
-        if (text) text = text.trim()
-        data.value.input = ''
-
-        if (text.length == 0) {
-            data.value.inputModeOn = false
-            return
-        }
-
-        createTask(text)
-    }
-
-    const createTask = (text) => {
-        data.value.tasks.push({name: text})
-    }
-
-    const onKeyDown = async (event) => {
-        if (data.value.inputModeOn == true) return
-        if (event.key == 'n') {
-            event.preventDefault()
-            event.stopPropagation()
-            data.value.inputModeOn = true
-            await nextTick()
-            if (inputRef.value) {
-                inputRef.value.focus()
-            }
-        }
-    }
-
-    onMounted(() => {
-        document.addEventListener("keydown", onKeyDown)
-    })
-
-    return {
-        data,
-        inputRef,
-        onInputEnter,
-        createTask
-    }
-  }
-}).mount('#app')
-
-</script>
+<!-- load external app script -->
+<script src="app.js"></script>
 
 <style scoped>
 </style>
