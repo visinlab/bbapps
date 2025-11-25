@@ -5,6 +5,8 @@
     <title>Pomonote</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="../common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
 </head>
 <body>
 
@@ -16,7 +18,20 @@
             ref="taskItems"
             tabindex="0"
             @click="onItemClick(idx)">
-            {{ task.name }}
+            <div>{{ task.description }}</div>
+            <div class="task-details">
+                <span v-if="task.projects && task.projects[0]"><i class="fa fa-tasks"></i> {{ task.projects[0] }} &nbsp;</span>
+                <span v-if="task.meta && task.meta.g"><i class="fa fa-folder"></i> {{ task.meta.g }} &nbsp;</span>
+                <span v-if="task.priority"><i class="fa fa-flag"></i> {{ task.priority }} &nbsp;</span>
+                <span
+                  v-if="task.meta && ((task.meta.pd !== undefined || task.meta.pp !== undefined) && !(parseInt(task.meta.pd || 0) === 0 && parseInt(task.meta.pp || 0) === 0))">
+                    <i class="fa fa-dot-circle-o"></i>
+                    {{ (task.meta.pd !== undefined ? task.meta.pd : 0) + "/" + (task.meta.pp !== undefined ? task.meta.pp : 0) }} &nbsp;
+                </span>
+                <span v-if="task.due"><i class="fa fa-calendar"></i> {{ task.due }} &nbsp;</span>
+                <span v-if="task.meta && task.meta.tp"><i class="fa fa-clock-o"></i> {{ task.meta.tp }} &nbsp;</span>
+                <span v-if="task.contexts && task.contexts.length"><i class="fa fa-tags"></i> {{ (task.contexts || []).join(' ') }} &nbsp;</span>
+            </div>
         </li>
     </ul>
     <div class="input-container" :class="{ visible : inputModeOn }">
@@ -32,6 +47,11 @@
 <script src="app.js"></script>
 
 <style scoped>
+.task-details {
+    color: #888;
+    font-size: 0.7em;
+    padding-top: 0.5em;
+}
 </style>
 
 </body>
